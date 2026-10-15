@@ -42,6 +42,44 @@ app.use(
 app.use(express.json());
 app.use(cookieParser());
 
+// Database connection helper with caching for serverless environments (Vercel)
+let cachedPromise = null;
+
+const connectDB = async () => {
+  if (mongoose.connection.readyState >= 1) {
+    return mongoose.connection;
+  }
+  if (!process.env.MONGO_URI) {
+    throw new Error('MONGO_URI is missing in environment variables');
+  }
+  if (!cachedPromise) {
+    cachedPromise = mongoose.connect(process.env.MONGO_URI).then((m) => {
+      console.log('MongoDB connected successfully.');
+      return m;
+    });
+  }
+  await cachedPromise;
+  return mongoose.connection;
+};
+
+// Middleware to ensure DB connection before handling API routes
+app.use(async (req, res, next) => {
+  // Allow health check to pass even if DB is connecting
+  if (req.path === '/') return next();
+
+  try {
+    await connectDB();
+    next();
+  } catch (err) {
+    console.error('Database connection error:', err);
+    return res.status(500).json({
+      success: false,
+      message: 'Failed to connect to database',
+      error: err.message,
+    });
+  }
+});
+
 // Health check endpoint
 app.get('/', (req, res) => {
   res.status(200).json({
@@ -59,23 +97,18 @@ app.use('/orders', orderRoutes);
 
 const PORT = process.env.PORT || 5001;
 
-// Establish persistent connection to MongoDB Atlas
-if (process.env.MONGO_URI) {
-  mongoose
-    .connect(process.env.MONGO_URI)
+// Only start the standalone HTTP listener in local development or traditional servers
+// In Vercel serverless, Vercel wraps the exported app directly
+if (process.env.NODE_ENV !== 'test' && !process.env.VERCEL) {
+  connectDB()
     .then(() => {
-      console.log('MongoDB connected successfully.');
-      if (process.env.NODE_ENV !== 'test') {
-        app.listen(PORT, () => {
-          console.log(`Server running on port ${PORT}`);
-        });
-      }
+      app.listen(PORT, () => {
+        console.log(`Server running on port ${PORT}`);
+      });
     })
     .catch((err) => {
-      console.error('Database connection error:', err);
+      console.error('Failed to start server:', err);
     });
-} else {
-  console.warn('⚠️ MONGO_URI is not defined in environment variables.');
 }
 
 module.exports = app;
