@@ -11,33 +11,25 @@ const orderRoutes = require('./routes/order.routes');
 
 const app = express();
 
-// Allowed origins for CORS (supports local dev and deployed frontend)
-const allowedOrigins = [
-  process.env.CLIENT_URL,
-  'http://localhost:5173',
-  'http://localhost:3000',
-  'http://localhost:5001',
-].filter(Boolean);
+// Immediate CORS and preflight handler for cross-site requests
+app.use((req, res, next) => {
+  const origin = req.headers.origin;
+  if (origin) {
+    res.setHeader('Access-Control-Allow-Origin', origin);
+  } else {
+    res.setHeader('Access-Control-Allow-Origin', '*');
+  }
+  res.setHeader('Access-Control-Allow-Credentials', 'true');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, PATCH, DELETE, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With, Accept, Origin');
 
-app.use(
-  cors({
-    origin: (origin, callback) => {
-      // Allow requests with no origin (e.g. mobile apps, curl, Postman)
-      if (!origin) return callback(null, true);
-      if (
-        allowedOrigins.includes(origin) ||
-        origin.endsWith('.vercel.app') ||
-        process.env.NODE_ENV !== 'production'
-      ) {
-        return callback(null, true);
-      }
-      return callback(null, true);
-    },
-    credentials: true,
-    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization'],
-  })
-);
+  // Immediately respond to preflight OPTIONS requests without routing or waiting
+  if (req.method === 'OPTIONS') {
+    return res.status(200).end();
+  }
+
+  next();
+});
 
 app.use(express.json());
 app.use(cookieParser());
@@ -76,8 +68,8 @@ const connectDB = async () => {
 
 // Middleware to ensure DB connection before handling API routes
 app.use(async (req, res, next) => {
-  // Allow health check to pass even if DB is connecting
-  if (req.path === '/') return next();
+  // Allow health check and preflight to pass without waiting for DB
+  if (req.path === '/' || req.method === 'OPTIONS') return next();
 
   try {
     await connectDB();
