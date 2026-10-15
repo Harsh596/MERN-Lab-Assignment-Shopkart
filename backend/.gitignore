@@ -1,0 +1,23 @@
+# Dependency directories
+node_modules/
+
+# Environment files
+.env
+.env.*
+*.env
+*.env.local
+
+# Allow example file
+!.env.example
+
+# OS files
+.DS_Store
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+
+# Editor directories
+.vscode/
+.idea/
