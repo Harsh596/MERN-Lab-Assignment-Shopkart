@@ -42,6 +42,14 @@ app.use(
 app.use(express.json());
 app.use(cookieParser());
 
+// Normalize URL for Vercel serverless rewrites so routes match seamlessly
+app.use((req, res, next) => {
+  if (req.originalUrl) {
+    req.url = req.originalUrl.replace(/^\/api(?=\/|$)/, '') || '/';
+  }
+  next();
+});
+
 // Database connection helper with caching for serverless environments (Vercel)
 let cachedPromise = null;
 
