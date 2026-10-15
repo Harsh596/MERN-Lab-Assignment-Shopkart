@@ -45,7 +45,11 @@ app.use(cookieParser());
 // Normalize URL for Vercel serverless rewrites so routes match seamlessly
 app.use((req, res, next) => {
   if (req.originalUrl) {
-    req.url = req.originalUrl.replace(/^\/api(?=\/|$)/, '') || '/';
+    let cleanUrl = req.originalUrl.replace(/^\/api(?=\/|$)/, '') || '/';
+    if (cleanUrl === '/index.js' || cleanUrl === '/index') {
+      cleanUrl = '/';
+    }
+    req.url = cleanUrl;
   }
   next();
 });
