@@ -1,6 +1,26 @@
 {
   "rewrites": [
     {
+      "source": "/customers/:path*",
+      "destination": "https://shopkart-backend-harsh596s-projects.vercel.app/customers/:path*"
+    },
+    {
+      "source": "/products/:path*",
+      "destination": "https://shopkart-backend-harsh596s-projects.vercel.app/products/:path*"
+    },
+    {
+      "source": "/cart/:path*",
+      "destination": "https://shopkart-backend-harsh596s-projects.vercel.app/cart/:path*"
+    },
+    {
+      "source": "/wishlist/:path*",
+      "destination": "https://shopkart-backend-harsh596s-projects.vercel.app/wishlist/:path*"
+    },
+    {
+      "source": "/orders/:path*",
+      "destination": "https://shopkart-backend-harsh596s-projects.vercel.app/orders/:path*"
+    },
+    {
       "source": "/(.*)",
       "destination": "/index.html"
     }
