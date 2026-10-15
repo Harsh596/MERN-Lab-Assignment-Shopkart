@@ -198,6 +198,8 @@ Now open [http://localhost:5173](http://localhost:5173) in your browser.
 
 ## ☁️ Deployment Guide
 
+You can deploy **both Frontend and Backend directly on Vercel** (recommended — zero cold starts and single dashboard), or deploy the backend on Render.
+
 ### Step 1: MongoDB Atlas Configuration
 1. Log into your [MongoDB Atlas](https://cloud.mongodb.com/) dashboard.
 2. Go to **Network Access** in the left sidebar.
@@ -210,9 +212,9 @@ Now open [http://localhost:5173](http://localhost:5173) in your browser.
 1. Stage and commit your files:
    ```bash
    git add .
-   git commit -m "feat: complete ShopKart full-stack lab project with Razorpay integration"
+   git commit -m "feat: complete ShopKart full-stack lab project"
    ```
-2. Create a new public/private repository on [GitHub](https://github.com/).
+2. Create a new repository on [GitHub](https://github.com/).
 3. Push your code:
    ```bash
    git remote add origin https://github.com/<your-username>/<your-repo-name>.git
@@ -223,41 +225,34 @@ Now open [http://localhost:5173](http://localhost:5173) in your browser.
 
 ---
 
-### Step 3: Backend Deployment (Render.com)
+### Step 3: Deploy the Backend on Vercel (Recommended)
 
-1. Sign up or log into [Render.com](https://render.com/).
-2. Click **New +** > **Web Service**.
-3. Connect your GitHub repository.
-4. Configure the service settings:
-   - **Name:** `shopkart-backend` (or your preferred name)
-   - **Region:** Closest to you (e.g., Singapore / Frankfurt)
-   - **Root Directory:** `backend`
-   - **Runtime:** `Node`
-   - **Build Command:** `npm install`
-   - **Start Command:** `npm start`
-   - **Instance Type:** `Free`
-5. Click **Advanced** > **Add Environment Variable** and add:
-   - `PORT` = `5001`
-   - `MONGO_URI` = `<your_mongodb_atlas_connection_string>`
-   - `JWT_SECRET` = `<your_jwt_secret>`
-   - `RAZORPAY_KEY_ID` = `<your_razorpay_key_id>`
-   - `RAZORPAY_KEY_SECRET` = `<your_razorpay_key_secret>`
-   - `NODE_ENV` = `production`
-   - `CLIENT_URL` = `<your_frontend_vercel_url>` *(can be added/updated after deploying frontend)*
-6. Click **Deploy Web Service**.
-7. Once deployed, test your API URL by visiting `https://<your-service-name>.onrender.com/`. You should see:
+1. Log into your [Vercel](https://vercel.com/) dashboard.
+2. Click **Add New...** > **Project** and import your GitHub repository.
+3. In the configuration screen:
+   - **Project Name:** `shopkart-backend` (or your preferred name)
+   - **Framework Preset:** `Other`
+   - **Root Directory:** Click **Edit** and choose `backend`.
+4. Expand **Environment Variables** and add the following keys from your `.env`:
+   - `MONGO_URI`: *(your MongoDB Atlas connection string)*
+   - `JWT_SECRET`: *(your JWT secret key)*
+   - `RAZORPAY_KEY_ID`: *(your Razorpay test key ID)*
+   - `RAZORPAY_KEY_SECRET`: *(your Razorpay test secret)*
+   - `NODE_ENV`: `production`
+5. Click **Deploy**.
+6. Once deployed, note down your live backend URL (e.g. `https://shopkart-backend.vercel.app`).
+7. Open `https://<your-backend-url>/` in your browser. You will see:
    ```json
-   {
-     "status": "healthy",
-     "message": "ShopKart API is running smoothly"
-   }
+   { "status": "healthy", "message": "ShopKart API is running smoothly" }
    ```
+
+*(Alternative: You can also deploy `backend` on Render.com as a Web Service using Build Command `npm install` and Start Command `npm start`).*
 
 ---
 
-### Step 4: Frontend Deployment (Vercel)
+### Step 4: Deploy the Frontend on Vercel
 
-1. Log into [Vercel](https://vercel.com/).
+1. Return to your [Vercel](https://vercel.com/) dashboard.
 2. Click **Add New...** > **Project**.
 3. Import your GitHub repository.
 4. In the Project Configuration:
